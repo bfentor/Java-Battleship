@@ -53,14 +53,21 @@ public class Battleship {
     // opponent
     static Ship[] opponentShips = new Ship[5];
     static ShipPart[][] opponentBoard = new ShipPart[10][10];
+    static ShipPart[][] playerGuessBoard = new ShipPart[10][10];
+    static int[] opponentShipHealth = {0, 0, 0, 0, 0,};
+    static int opponentNumDestroyedShips = 0;
     
     // player
     static Ship[] playerShips = new Ship[5];
     static ShipPart[][] playerBoard = new ShipPart[10][10];
+    static ShipPart[][] opponentGuessBoard = new ShipPart[10][10];
+    static int[] playerShipHealth = {0, 0, 0, 0, 0,};
+    static int playerNumDestroyedShips = 0;
     
     public static void main(String[] args) {
-        // test        
+        // test
         //test();
+        
         menu();
     }
     public static void test() {
@@ -71,8 +78,8 @@ public class Battleship {
         testPrint();
         System.out.println(playerBoard[9][2]);
         System.out.println(playerBoard[4][6]);
-        checkSunkShip();
-        checkSunkShip();
+        playerCheckSunkShip();
+        playerCheckSunkShip();
     }
     public static void testPrint() {
         System.out.printf("%n%-6s %-6s %-12s %-2s %-2s %n", "State", "Hor?", "Type", "X", "Y");
@@ -98,23 +105,66 @@ public class Battleship {
             }
         }
     }
-    public static void checkSunkShip() {
+    public static void prepareOpponentBoard() {
+        // for testing
+        opponentShips[0] = new Ship(false, false, "Carrier", 5, 10, 2);
+        opponentShips[1] = new Ship(false, true, "Battleship", 4, 5, 10);
+        opponentShips[2] = new Ship(false, true, "Cruiser", 3, 3, 7);
+        opponentShips[3] = new Ship(false, false, "Submarine", 3, 2, 4);
+        opponentShips[4] = new Ship(false, true, "Destroyer", 2, 1, 9);
+        for (int i = 0; i < opponentShips.length; i++) {
+            for (int k = 0; k < opponentShips[i].getNum(); k++) {
+                if (opponentShips[i].isHorizontal())
+                    opponentBoard[opponentShips[i].getX()+k-1][opponentShips[i].getY()-1] = new ShipPart(false, names[i]);
+                else 
+                    opponentBoard[opponentShips[i].getX()-1][opponentShips[i].getY()+k-1] = new ShipPart(false, names[i]);
+            }
+        }
+    }
+    public static void playerCheckSunkShip() {
         for (int i = 0; i < playerShips.length; i++) {
-            int totDest = 0;
             if (!playerShips[i].isDestroyed())
                 for (int k = 0; k < playerShips[i].getNum(); k++) {
                     if (playerShips[i].isHorizontal()) {
                         if (playerBoard[playerShips[i].getX()+k-1][playerShips[i].getY()-1].isDestroyed())
-                            totDest++;
+                            playerShipHealth[i]++;
                     } else {
                         if (playerBoard[playerShips[i].getX()-1][playerShips[i].getY()+k-1].isDestroyed())
-                            totDest++;
+                            playerShipHealth[i]++;
                     }
                 }
-            if (totDest == playerShips[i].getNum()) {
+            if (playerShipHealth[i] == playerShips[i].getNum()) {
                 System.out.println("You sunk my " + names[i] + "!");
                 playerShips[i].setDestroyed(true);
+                playerNumDestroyedShips++;
             }   
+            if (playerNumDestroyedShips == 5) {
+                System.out.println("\nOpponent Wins!");
+                System.exit(0);
+            }
+        }
+    }
+    public static void opponentCheckSunkShip() {
+        for (int i = 0; i < opponentShips.length; i++) {
+            if (!opponentShips[i].isDestroyed())
+                for (int k = 0; k < opponentShips[i].getNum(); k++) {
+                    if (opponentShips[i].isHorizontal()) {
+                        if (opponentBoard[opponentShips[i].getX()+k-1][opponentShips[i].getY()-1].isDestroyed())
+                            opponentShipHealth[i]++;
+                    } else {
+                        if (opponentBoard[opponentShips[i].getX()-1][opponentShips[i].getY()+k-1].isDestroyed())
+                            opponentShipHealth[i]++;
+                    }
+                }
+            if (opponentShipHealth[i] == opponentShips[i].getNum()) {
+                System.out.println("You sunk my " + names[i] + "!");
+                opponentShips[i].setDestroyed(true);
+                opponentNumDestroyedShips++;
+            }   
+            if (opponentNumDestroyedShips == 5) {
+                System.out.println("\nPlayer Wins!");
+                System.exit(0);
+            }
         }
     }
     public static void printPlayerBoard() {
@@ -124,6 +174,38 @@ public class Battleship {
             for (int x = 0; x < playerBoard[y].length; x++) {
                 if (playerBoard[x][y] != null) {
                     if (!playerBoard[x][y].isDestroyed()) 
+                        System.out.print(filledSquare + " ");
+                    else 
+                        System.out.print(crossedSquare + " ");
+                } else 
+                    System.out.print(hollowSquare + " ");
+            }
+            System.out.println();
+        }
+    }
+    public static void printOpponentBoard() {
+        System.out.println("  1 2 3 4 5 6 7 8 9 10");
+        for (int y = 0; y < opponentBoard.length; y++) {
+            System.out.printf("%-2d", y+1);
+            for (int x = 0; x < opponentBoard[y].length; x++) {
+                if (opponentBoard[x][y] != null) {
+                    if (!opponentBoard[x][y].isDestroyed()) 
+                        System.out.print(filledSquare + " ");
+                    else 
+                        System.out.print(crossedSquare + " ");
+                } else 
+                    System.out.print(hollowSquare + " ");
+            }
+            System.out.println();
+        }
+    }
+    public static void printOpponentGuessBoard() {
+        System.out.println("  1 2 3 4 5 6 7 8 9 10");
+        for (int y = 0; y < opponentGuessBoard.length; y++) {
+            System.out.printf("%-2d", y+1);
+            for (int x = 0; x < opponentGuessBoard[y].length; x++) {
+                if (opponentGuessBoard[x][y] != null) {
+                    if (!opponentGuessBoard[x][y].isDestroyed()) 
                         System.out.print(filledSquare + " ");
                     else 
                         System.out.print(crossedSquare + " ");
@@ -221,7 +303,7 @@ public class Battleship {
         }
         System.out.println(cls);
         printPlayerBoard();
-        System.out.println("1. Proceed");
+        System.out.println("\n1. Proceed");
         System.out.println("2. Restart");
         int choice = Integer.parseInt(in.nextLine());
         if (choice == 1) 
@@ -231,7 +313,35 @@ public class Battleship {
     }
     public static void soloGame(Scanner in) {
         chooseShips(in);
-        testPrint();
+        try {
+            prepareOpponentBoard(); 
+        } catch(Exception e)  {
+            System.out.println("Invalid Placement");
+        }
+        
+        while ((playerNumDestroyedShips < 5) && (opponentNumDestroyedShips < 5)) {
+            printOpponentGuessBoard();
+            printOpponentBoard();
+            System.out.println("Coordinate to Shoot:");
+            System.out.print("X = ");
+            int x = Integer.parseInt(in.next());
+            System.out.print("Y = ");
+            int y = Integer.parseInt(in.next());
+            if (opponentBoard[x-1][y-1] != null) {
+                System.out.println("Hit!");
+                opponentBoard[x-1][y-1].isDestroyed();
+                opponentGuessBoard[x-1][y-1] = new ShipPart(true, "Empty");
+            } else {
+                System.out.println("Miss");
+            }
+            opponentCheckSunkShip();
+            playerCheckSunkShip();
+            //opponentShipHealth[0]++;
+            for (int i : opponentShipHealth)
+                System.out.println(i);
+        }
+        
+        //testPrint();
     }
     public static void settings(Scanner in) {
         System.out.print(cls); 

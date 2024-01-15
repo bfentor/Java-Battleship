@@ -9,7 +9,6 @@ public class ShipPart extends ShipTemplate {
     public ShipPart(boolean destroyed, String type) {
         super(destroyed, type);
     }
-    
     // toString
     public String toString() {
         return String.format("%b %s", isDestroyed(), getType());
