@@ -41,7 +41,7 @@ public class Battleship {
     final static String ESC = "\033[";
     final static String cls = ESC + "2J" + ANSI_HOME;
     
-    // squars
+    // squares
     final static char hollowSquare = 9633;
     final static char filledSquare = 9632;
     final static char crossedSquare = 9639;
@@ -65,7 +65,6 @@ public class Battleship {
     static int playerNumDestroyedShips = 0;
     
     public static void main(String[] args) {
-        // test
         //test();
         
         menu();
@@ -149,11 +148,15 @@ public class Battleship {
             if (!opponentShips[i].isDestroyed())
                 for (int k = 0; k < opponentShips[i].getNum(); k++) {
                     if (opponentShips[i].isHorizontal()) {
-                        if (opponentBoard[opponentShips[i].getX()+k-1][opponentShips[i].getY()-1].isDestroyed())
+                        if (opponentBoard[opponentShips[i].getX()+k-1][opponentShips[i].getY()-1].isDestroyed()) {
                             opponentShipHealth[i]++;
+                            System.out.println(opponentBoard[opponentShips[i].getX()+k-1][opponentShips[i].getY()-1].isDestroyed());
+                        }
                     } else {
-                        if (opponentBoard[opponentShips[i].getX()-1][opponentShips[i].getY()+k-1].isDestroyed())
+                        if (opponentBoard[opponentShips[i].getX()-1][opponentShips[i].getY()+k-1].isDestroyed()) {
                             opponentShipHealth[i]++;
+                            System.out.println(opponentBoard[opponentShips[i].getX()-1][opponentShips[i].getY()+k-1].isDestroyed());
+                        }
                     }
                 }
             if (opponentShipHealth[i] == opponentShips[i].getNum()) {
